@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from sklearn.datasets import load_breast_cancer
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-sns.set()
 
+sns.set()
+np.random.seed(10)
 pd.options.display.max_columns = 30
 
 # %% załadowanie danych
@@ -73,6 +75,7 @@ from sklearn.metrics import roc_curve
 fpr, tpr, threshold = roc_curve(y_test, y_pred)
 
 def plot_roc_curve(fpr, tpr, label=None):
+    plt.figure()
     plt.plot(fpr, tpr, label=label)
     plt.plot([0, 1], [0, 1], '--')
     plt.xlabel('FPR - False Positive Rate')
@@ -88,3 +91,50 @@ for C in [0.1, 0.5]:
     y_pred = classifier.predict(X_test)
     fpr, tpr, threshold = roc_curve(y_test, y_pred)
     plot_roc_curve(fpr, tpr)
+    
+# %% 
+
+def evaluate_binary_classification(classifier,
+                                   X_train=X_train,
+                                   X_test=X_test,
+                                   y_train=y_train,
+                                   y_test=y_test):
+    
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import classification_report, confusion_matrix
+    from sklearn.metrics import roc_curve
+    
+    sns.set()
+    
+    acc_train = classifier.score(X_train, y_train)
+    print(f'Dokładność modelu na zbiorze treningowym: {acc_train:.4f}')
+
+    acc_test = classifier.score(X_test, y_test)
+    print(f'Dokładność modelu na zbiorze testowym: {acc_test:.4f}')
+
+    y_pred = classifier.predict(X_test)
+    
+    print(f'\nRaport klasyfikacji:\n {classification_report(y_test, y_pred)}')
+
+    cm = confusion_matrix(y_test, y_pred)
+    print(cm)
+    
+    sns.heatmap(cm, cmap=sns.cm.rocket_r, annot=True)
+    plt.show()
+    
+    fpr, tpr, threshold = roc_curve(y_test, y_pred)
+    
+    def plot_roc_curve(fpr, tpr, label=None):
+        plt.figure()
+        plt.plot(fpr, tpr, label=label)
+        plt.plot([0, 1], [0, 1], '--')
+        plt.xlabel('FPR - False Positive Rate')
+        plt.ylabel('TPR - True Positive Rate')
+        plt.title('ROC curve')
+        plt.show()
+    
+    plot_roc_curve(fpr, tpr)
+    
+# %%
+evaluate_binary_classification(classifier)
