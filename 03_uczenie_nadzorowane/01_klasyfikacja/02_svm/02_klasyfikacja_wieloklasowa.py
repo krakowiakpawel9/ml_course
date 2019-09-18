@@ -25,25 +25,18 @@ df['target_names'] = df.target.apply(lambda x: names[x])
 # %% eksploracja danych
 sns.pairplot(df, hue='target_names')
 
-# %% pozostawienie dwóch klas versicolor i virginica
-df = df[(df.target_names == 'versicolor') | (df.target_names == 'virginica')]
-
-# %% eksploracja danych c.d.
-sns.pairplot(df, hue='target_names')
-
 # %% przygotowanie danych do modelu
 X = df.iloc[:, :4]
-y = df.iloc[:, 4:5]
+y = df.iloc[:, 5]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
 # %% budowa modelu
-classifier = SVC(C=5.0, kernel='linear')
+classifier = SVC(kernel='rbf', probability=True)
 
 # %% trenowanie modelu
 classifier.fit(X_train, y_train)
 
-# %% Accuracy - dokładność, jak dobrze nasz model przewiduje klasy
 # %% ocena modelu na zbiorze treningowym
 acc_train = classifier.score(X_train, y_train)
 print(f'Dokładność modelu na zbiorze treningowym: {acc_train}')
@@ -55,6 +48,9 @@ print(f'Dokładność modelu na zbiorze testowym: {acc_test}')
 # %% predykcja na podstawie modelu
 y_pred = classifier.predict(X_test)
 
+# %% obliczenie p-stwa predykcji
+y_pred_prob = classifier.predict_proba(X_test)
+
 # %% raport klasyfikacji
 print(classification_report(y_test, y_pred))
 
@@ -65,31 +61,5 @@ print(cm)
 # %% bez etykiet
 sns.heatmap(cm, cmap=sns.cm.rocket_r, annot=True)
 
-# %% z etykietami
-cm = pd.DataFrame(cm, columns=['versicolor', 'virginica'], index=['versicolor', 'virginica'])
-sns.heatmap(cm, cmap=sns.cm.rocket_r, annot=True)
 
-# %% krzywa ROC - Receiver Operating Characteristic
-from sklearn.metrics import roc_curve
-
-fpr, tpr, threshold = roc_curve(y_test, y_pred, pos_label=2)
-
-def plot_roc_curve(fpr, tpr, label=None):
-    plt.plot(fpr, tpr, label=label)
-    plt.plot([0, 1], [0, 1], '--')
-    plt.xlabel('FPR - False Positive Rate')
-    plt.ylabel('TPR - True Positive Rate')
-    plt.show()
-
-plot_roc_curve(fpr, tpr)
-
-# %% AUC - Area Under the Curve - pole pod krzywą ROC
-from sklearn.metrics import roc_auc_score
-
-auc = roc_auc_score(y_test, y_pred)
-print(auc)
-
-# %% GINI Coefficient Gini = 2 * AUC - 1
-gini = 2 * auc - 1
-print(gini)
 

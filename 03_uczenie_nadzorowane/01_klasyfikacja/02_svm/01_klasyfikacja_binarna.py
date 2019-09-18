@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from sklearn.datasets import load_breast_cancer
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
@@ -66,31 +67,24 @@ print(cm)
 # %% bez etykiet
 sns.heatmap(cm, cmap=sns.cm.rocket_r, annot=True)
 
-# %% budowa modelu 
-from sklearn.svm import SVC
+# %% krzywa ROC - Receiver Operating Characteristic
+from sklearn.metrics import roc_curve
 
-classifier = SVC(C=1.0, kernel='linear')
-classifier.fit(X_train, y_train)
+fpr, tpr, threshold = roc_curve(y_test, y_pred)
 
-# %% ocena modelu na zbiorze treningowym
-acc_train = classifier.score(X_train, y_train)
-print(f'Dokładność modelu na zbiorze treningowym: {acc_train}')
+def plot_roc_curve(fpr, tpr, label=None):
+    plt.plot(fpr, tpr, label=label)
+    plt.plot([0, 1], [0, 1], '--')
+    plt.xlabel('FPR - False Positive Rate')
+    plt.ylabel('TPR - True Positive Rate')
+    plt.show()
 
-# %% ocena modelu na zbiorze testowym
-acc_test = classifier.score(X_test, y_test)
-print(f'Dokładność modelu na zbiorze testowym: {acc_test}')
+plot_roc_curve(fpr, tpr)
 
-# %% predykcja na podstawie modelu
-y_pred = classifier.predict(X_test)
-
-# %% raport klasyfikacji
-from sklearn.metrics import classification_report, confusion_matrix
-
-print(classification_report(y_test, y_pred))
-
-# %% macierz konfuzji
-cm = confusion_matrix(y_test, y_pred)
-print(cm)
-
-# %% bez etykiet
-sns.heatmap(cm, cmap=sns.cm.rocket_r, annot=True)
+# %% C parametr
+for C in [0.1, 0.5]:
+    classifier = SVC(C=C, kernel='linear')
+    classifier.fit(X_train, y_train)
+    y_pred = classifier.predict(X_test)
+    fpr, tpr, threshold = roc_curve(y_test, y_pred)
+    plot_roc_curve(fpr, tpr)
