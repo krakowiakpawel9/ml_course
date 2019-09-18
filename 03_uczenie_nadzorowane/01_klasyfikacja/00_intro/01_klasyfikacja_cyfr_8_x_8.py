@@ -9,20 +9,23 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 
 np.random.seed(1)
+
 # %% pobranie danych
+# dane przedstawiają 1797 ręcznie zapisanych cyfry w rozmiarze 8x8 pikseli
 data_raw = load_digits()
 data = data_raw.data
 images = data_raw.images
-labels = data_raw.target
+target = data_raw.target
 
 # %% wyświetlenie danych
 print('Rozmiar danych:', data.shape)
 print('Pierwszy element:\n', data[0])
 
 print('Pierwszy obraz:\n', images[0])
+
 # %% wyświetlenie obrazów, domyślna mapa kolorów
 plt.figure()
-for idx, (image, label) in enumerate(list(zip(images, labels))[:15]):
+for idx, (image, label) in enumerate(list(zip(images, target))[:15]):
     # print(idx, image, label)
     plt.subplot(3, 5, idx + 1)
     plt.imshow(image)
@@ -31,7 +34,7 @@ plt.show()
     
 # %% wyświetlenie obrazów, skala szarości
 plt.figure()
-for idx, (image, label) in enumerate(list(zip(images, labels))[:15]):
+for idx, (image, label) in enumerate(list(zip(images, target))[:15]):
     # print(idx, image, label)
     plt.subplot(3, 5, idx + 1)
     plt.imshow(image, cmap=plt.cm.gray_r)
@@ -40,7 +43,7 @@ plt.show()
 
 # %% przygotowanie danych
 X = data.copy()
-y = labels.copy()
+y = target.copy()
 
 # %% podział danych na zbiór treningowy i testowy    
 X_train, X_test, y_train, y_test = train_test_split(X, y)    
